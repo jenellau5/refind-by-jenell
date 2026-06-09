@@ -7,7 +7,6 @@ import { storage } from "./storage";
 import { insertListingSchema, insertTreasureRequestSchema } from "@shared/schema";
 
 // ─── File upload setup ───────────────────────────────────────────────────────
-// On Vercel, /tmp is the only writable dir. Locally, use ./uploads.
 const uploadsDir = process.env.VERCEL
   ? "/tmp/uploads"
   : path.join(process.cwd(), "uploads");
@@ -15,7 +14,7 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const upload = multer({
   dest: uploadsDir,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB per file
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter(_req, file, cb) {
     if (file.mimetype.startsWith("image/")) cb(null, true);
     else cb(new Error("Images only"));
@@ -31,39 +30,42 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
 
   // ── Listings ──────────────────────────────────────────────────────────────
-  app.get("/api/listings", (req, res) => {
-    const { category, status, search } = req.query as Record<string, string>;
-    const results = storage.getAllListings({ category, status, search });
-    res.json(results);
+  app.get("/api/listings", async (req, res) => {
+    try {
+      const { category, status, search } = req.query as Record<string, string>;
+      const results = await storage.getAllListings({ category, status, search });
+      res.json(results);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  app.get("/api/listings/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
-    const listing = storage.getListingById(id);
-    if (!listing) return res.status(404).json({ error: "Not found" });
-    res.json(listing);
+  app.get("/api/listings/by-number/:itemNumber", async (req, res) => {
+    try {
+      const listing = await storage.getListingByItemNumber(req.params.itemNumber.toUpperCase());
+      if (!listing) return res.status(404).json({ error: "Not found" });
+      res.json(listing);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  app.get("/api/listings/by-number/:itemNumber", (req, res) => {
-    const listing = storage.getListingByItemNumber(req.params.itemNumber.toUpperCase());
-    if (!listing) return res.status(404).json({ error: "Not found" });
-    res.json(listing);
+  app.get("/api/listings/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+      const listing = await storage.getListingById(id);
+      if (!listing) return res.status(404).json({ error: "Not found" });
+      res.json(listing);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  app.post("/api/listings", upload.array("photos", 10), (req, res) => {
+  app.post("/api/listings", upload.array("photos", 10), async (req, res) => {
     try {
       const files = (req.files as Express.Multer.File[]) ?? [];
       const photoUrls = files.map((f) => `/uploads/${f.filename}`);
-
-      // Merge existing photos (passed as JSON string) with new uploads
       let existingPhotos: string[] = [];
       if (req.body.existingPhotos) {
         try { existingPhotos = JSON.parse(req.body.existingPhotos); } catch {}
       }
-
       const badges: string[] = [];
-      if (req.body.isJenellsPick === "true" || req.body.isJenellsPick === true) badges.push("jenellsPick");
+      if (req.body.isJenellsPick === "true") badges.push("jenellsPick");
       if (parseFloat(req.body.price) < 10) badges.push("under10");
       if (req.body.newThisWeek === "true") badges.push("newThisWeek");
       if (req.body.vintage === "true") badges.push("vintage");
@@ -81,29 +83,22 @@ export function registerRoutes(httpServer: Server, app: Express) {
         badges: JSON.stringify(badges),
         isJenellsPick: req.body.isJenellsPick === "true",
       });
-
-      const listing = storage.createListing(data);
+      const listing = await storage.createListing(data);
       res.json(listing);
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
-    }
+    } catch (err: any) { res.status(400).json({ error: err.message }); }
   });
 
-  app.patch("/api/listings/:id", upload.array("photos", 10), (req, res) => {
+  app.patch("/api/listings/:id", upload.array("photos", 10), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
-
       const files = (req.files as Express.Multer.File[]) ?? [];
       const newPhotoUrls = files.map((f) => `/uploads/${f.filename}`);
-
       let existingPhotos: string[] = [];
       if (req.body.existingPhotos) {
         try { existingPhotos = JSON.parse(req.body.existingPhotos); } catch {}
       }
-
       const allPhotos = [...existingPhotos, ...newPhotoUrls];
-
       const badges: string[] = [];
       if (req.body.isJenellsPick === "true") badges.push("jenellsPick");
       const price = req.body.price ? parseFloat(req.body.price) : undefined;
@@ -124,49 +119,51 @@ export function registerRoutes(httpServer: Server, app: Express) {
       update.photos = JSON.stringify(allPhotos);
       update.badges = JSON.stringify(badges);
 
-      const listing = storage.updateListing(id, update);
+      const listing = await storage.updateListing(id, update);
       if (!listing) return res.status(404).json({ error: "Not found" });
       res.json(listing);
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
-    }
+    } catch (err: any) { res.status(400).json({ error: err.message }); }
   });
 
-  app.post("/api/listings/:id/sold", (req, res) => {
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
-    const listing = storage.markSold(id);
-    if (!listing) return res.status(404).json({ error: "Not found" });
-    res.json(listing);
+  app.post("/api/listings/:id/sold", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const listing = await storage.markSold(id);
+      if (!listing) return res.status(404).json({ error: "Not found" });
+      res.json(listing);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  app.delete("/api/listings/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
-    storage.deleteListing(id);
-    res.json({ ok: true });
+  app.delete("/api/listings/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteListing(id);
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
   // ── Treasure Hunt Requests ────────────────────────────────────────────────
-  app.get("/api/requests", (_req, res) => {
-    res.json(storage.getAllRequests());
+  app.get("/api/requests", async (_req, res) => {
+    try {
+      res.json(await storage.getAllRequests());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  app.post("/api/requests", (req, res) => {
+  app.post("/api/requests", async (req, res) => {
     try {
       const data = insertTreasureRequestSchema.parse(req.body);
-      const request = storage.createRequest(data);
+      const request = await storage.createRequest(data);
       res.json(request);
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
-    }
+    } catch (err: any) { res.status(400).json({ error: err.message }); }
   });
 
-  app.patch("/api/requests/:id/status", (req, res) => {
-    const id = parseInt(req.params.id);
-    const { status } = req.body;
-    const request = storage.updateRequestStatus(id, status);
-    if (!request) return res.status(404).json({ error: "Not found" });
-    res.json(request);
+  app.patch("/api/requests/:id/status", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const request = await storage.updateRequestStatus(id, status);
+      if (!request) return res.status(404).json({ error: "Not found" });
+      res.json(request);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 }

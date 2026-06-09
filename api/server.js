@@ -1,20 +1,22 @@
-// Vercel serverless entry point
-// Wraps the Express app exported from dist/index.cjs
+// Vercel serverless function — Express API handler
+// Uses @neondatabase/serverless for Postgres (no native binaries)
 
-let handlerPromise = null;
+let appPromise = null;
 
-function getHandler() {
-  if (!handlerPromise) {
-    handlerPromise = (async () => {
+function getApp() {
+  if (!appPromise) {
+    appPromise = (async () => {
+      // Set VERCEL flag so storage.ts uses PgStorage
+      process.env.VERCEL = "1";
       const mod = require("../dist/index.cjs");
-      const handler = mod.default || mod;
-      return handler;
+      // The default export is the async handler
+      return mod.default || mod;
     })();
   }
-  return handlerPromise;
+  return appPromise;
 }
 
 module.exports = async (req, res) => {
-  const handler = await getHandler();
+  const handler = await getApp();
   return handler(req, res);
 };
