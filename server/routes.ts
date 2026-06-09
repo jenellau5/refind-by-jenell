@@ -7,7 +7,10 @@ import { storage } from "./storage";
 import { insertListingSchema, insertTreasureRequestSchema } from "@shared/schema";
 
 // ─── File upload setup ───────────────────────────────────────────────────────
-const uploadsDir = path.join(process.cwd(), "uploads");
+// On Vercel, /tmp is the only writable dir. Locally, use ./uploads.
+const uploadsDir = process.env.VERCEL
+  ? "/tmp/uploads"
+  : path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const upload = multer({

@@ -4,7 +4,12 @@ import { eq, like, or, desc, and } from "drizzle-orm";
 import { listings, treasureRequests } from "@shared/schema";
 import type { InsertListing, Listing, InsertTreasureRequest, TreasureRequest } from "@shared/schema";
 
-const sqlite = new Database("data.db");
+// On Vercel and other read-only filesystems, use /tmp for the database.
+// Locally and in Docker, use the project root so data.db persists.
+const DB_PATH = process.env.VERCEL
+  ? "/tmp/data.db"
+  : process.env.DB_PATH ?? "data.db";
+const sqlite = new Database(DB_PATH);
 export const db = drizzle(sqlite);
 
 // ─── Auto-migrate ────────────────────────────────────────────────────────────
