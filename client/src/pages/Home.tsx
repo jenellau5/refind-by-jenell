@@ -101,7 +101,7 @@ export default function Home() {
             {newest.map((l) => <ListingCard key={l.id} listing={l} />)}
           </div>
         ) : (
-          <div className="py-12 text-center border border-dashed border-border rounded-md text-muted-foreground">
+          <div className="py-12 text-center border border-dashed border-border rounded-md text-muted-foreground w-full">
             <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
             <p className="font-medium">New finds dropping soon</p>
             <p className="text-sm">Check back — Jenell thrifts regularly.</p>
