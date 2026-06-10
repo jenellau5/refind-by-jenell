@@ -15,7 +15,7 @@ export default function Footer() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Secondhand treasures, curated with care. Mom breaks & good finds.
+            Jenell's thrift finds, all in one place. Browse what's available and grab it before someone else does.
           </p>
         </div>
 
@@ -46,7 +46,7 @@ export default function Footer() {
             <li>Local pickup available</li>
             <li>Shipping available</li>
             <li>Shipping calculated after purchase</li>
-            <li className="pt-1 flex items-center gap-3">
+            <li className="pt-1">
               <a
                 href="https://instagram.com/refindbyjenell"
                 target="_blank"
@@ -55,16 +55,6 @@ export default function Footer() {
                 data-testid="footer-instagram"
               >
                 Instagram
-              </a>
-              <span className="text-border">|</span>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors font-medium"
-                data-testid="footer-facebook"
-              >
-                Facebook
               </a>
             </li>
           </ul>

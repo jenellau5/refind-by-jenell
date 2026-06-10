@@ -1,5 +1,4 @@
-import { Switch, Route, Router } from "wouter";
-import { useHashLocation } from "wouter/use-hash-location";
+import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -17,8 +16,7 @@ import NotFound from "@/pages/not-found";
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router hook={useHashLocation}>
-        <Switch>
+      <Switch>
           <Route path="/" component={Home} />
           <Route path="/refinds" component={ReFinds} />
           <Route path="/kids" component={KidsReFinds} />
@@ -28,8 +26,7 @@ export default function App() {
           <Route path="/item/:id" component={ItemDetail} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
-        </Switch>
-      </Router>
+      </Switch>
       <Toaster />
     </QueryClientProvider>
   );

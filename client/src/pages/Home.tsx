@@ -11,17 +11,17 @@ import logoImg from "@assets/refind-logo.jpg";
 import { Sparkles, Shirt, Baby, DollarSign, Star, Recycle, Search, Leaf } from "lucide-react";
 
 const categories = [
-  { href: "/refinds", label: "ReFinds", desc: "Women's thrifted & closet cleanouts", icon: Shirt, color: "bg-primary/10 text-primary" },
+  { href: "/refinds", label: "ReFinds", desc: "Women's thrifted finds & closet cleanouts", icon: Shirt, color: "bg-primary/10 text-primary" },
   { href: "/kids", label: "Kids' ReFinds", desc: "Kids' clothing, sizes newborn–teen", icon: Baby, color: "bg-secondary/10 text-secondary" },
-  { href: "/under10", label: "Under $10", desc: "Budget treasures under $10", icon: DollarSign, color: "bg-emerald-100 text-emerald-800" },
-  { href: "/styled", label: "Styled by Jenell", desc: "Full outfits curated by Jenell", icon: Sparkles, color: "bg-accent/20 text-accent-foreground" },
+  { href: "/under10", label: "Under $10", desc: "Good stuff, cheap", icon: DollarSign, color: "bg-emerald-100 text-emerald-800" },
+  { href: "/styled", label: "Styled by Jenell", desc: "Full outfits put together by Jenell", icon: Sparkles, color: "bg-accent/20 text-accent-foreground" },
 ];
 
 const whySecondhand = [
-  { icon: DollarSign, title: "Save Real Money", desc: "On average, save 50–80% compared to retail. Great style doesn't have to cost full price." },
-  { icon: Leaf, title: "Reduce Waste", desc: "Every secondhand purchase keeps clothing out of landfills. Fashion can be circular." },
-  { icon: Search, title: "Find Unique Pieces", desc: "One-of-a-kind finds you won't see on anyone else. The thrill of the treasure hunt." },
-  { icon: Recycle, title: "Build on a Budget", desc: "Create a wardrobe you love without breaking the bank. Affordable style is real style." },
+  { icon: DollarSign, title: "Way cheaper", desc: "Retail is a rip-off. Most of this stuff is barely worn and a fraction of the price." },
+  { icon: Search, title: "Actually unique", desc: "You're not going to find these exact pieces at the mall. That's kind of the point." },
+  { icon: Recycle, title: "Less waste", desc: "Buying secondhand keeps good clothes out of the trash. Win for your wallet, win for the planet." },
+  { icon: Leaf, title: "Low pressure", desc: "No returns policy guilt, no impulse purchase regret. Browse what's here, grab what you like." },
 ];
 
 export default function Home() {
@@ -57,16 +57,15 @@ export default function Home() {
               className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-5 leading-tight"
               style={{ fontFamily: "'Erode', serif" }}
             >
-              Secondhand<br />
-              <span className="text-primary">treasures</span> worth<br />
-              finding again.
+              Jenell's thrift<br />
+              finds —{" "}<span className="text-primary">all right here.</span>
             </h1>
             <p className="text-muted-foreground text-lg mb-8 max-w-md">
-              Thrifted finds, closet cleanouts, kids' clothing, and styled outfits — curated so you don't have to dig.
+              Thrifted clothing, closet cleanouts, kids' stuff, and full outfits. This is where the inventory lives — browse what's available and grab it before it's gone.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
               <Button asChild size="lg" data-testid="hero-cta">
-                <Link href="/refinds">Shop the Closet</Link>
+                <Link href="/refinds">See What's Available</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <a href="#treasure-hunt" onClick={(e) => {
@@ -103,8 +102,8 @@ export default function Home() {
         ) : (
           <div className="py-12 text-center border border-dashed border-border rounded-md text-muted-foreground w-full">
             <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
-            <p className="font-medium">New finds dropping soon</p>
-            <p className="text-sm">Check back — Jenell thrifts regularly.</p>
+            <p className="font-medium">Nothing posted yet this week</p>
+            <p className="text-sm">Check back soon — Jenell thrifts often.</p>
           </div>
         )}
       </section>
@@ -115,7 +114,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: "'Erode', serif" }}>
             Browse Categories
           </h2>
-          <p className="text-muted-foreground mb-8">Find exactly what you're looking for.</p>
+          <p className="text-muted-foreground mb-8">Pick a section and see what's in stock.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.map(({ href, label, desc, icon: Icon, color }) => (
               <Link key={href} href={href} data-testid={`cat-card-${label.replace(/\s+/g, "-").toLowerCase()}`}>
@@ -142,7 +141,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Erode', serif" }}>
                 Jenell's Picks
               </h2>
-              <p className="text-muted-foreground text-sm mt-1">Pieces she personally loves</p>
+              <p className="text-muted-foreground text-sm mt-1">Stuff she'd keep if she wasn't selling it</p>
             </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -155,10 +154,10 @@ export default function Home() {
       <section className="bg-card border-y border-border">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: "'Erode', serif" }}>
-            Why Secondhand?
+            Honestly, why not?
           </h2>
           <p className="text-muted-foreground mb-10 max-w-xl">
-            Jenell started ReFind because finding cool stuff is way more fun than paying full price for it.
+            Jenell thrifts because it's fun, the prices are good, and you find stuff you can't get anywhere else. That's pretty much it.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {whySecondhand.map(({ icon: Icon, title, desc }) => (
@@ -180,10 +179,10 @@ export default function Home() {
           <div className="text-center mb-8">
             <Badge className="mb-3 bg-secondary/10 text-secondary border-0">Treasure Hunt Requests</Badge>
             <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Erode', serif" }}>
-              Can't find what you're looking for?
+              Looking for something specific?
             </h2>
             <p className="text-muted-foreground mt-2 text-sm">
-              Tell Jenell what size, brand, or item you want — she'll keep an eye out while thrifting.
+              Drop your size, brand, or whatever you're hunting for — Jenell will keep an eye out next time she's thrifting.
             </p>
           </div>
           <TreasureForm />
